@@ -7,36 +7,28 @@ app.use(express.json());
 
 const router = express.Router();
 
-formatFen = (fen) => {
-  f1 = fen.slice(0,26);
-  f2 = fen.slice(27,51);
-  f3 = fen.slice(52);
-  return [f1,f2,f3];
-}
-
 const validate = (prevFEN,move) => {
   let chess = new Chess(prevFEN);
   if (chess.move(move)) {
     if (chess.game_over()) {
-      if (chess.in_checkmate()) return [1, true, "", "", "" ];
-      return [2, true, "", "", ""];
+      if (chess.in_checkmate()) return [1, true, ""];
+      else if (chess.in_stalemate()) return [2, true, ""]; 
+      else if (chess.insufficient_material()) return [3, true, ""];
     }
-    const [f1,f2,f3] = formatFen(chess.fen());
-    return [0, true, f1, f2, f3];
+    return [0, true, chess.fen() ];
   }
-  return [0, false, "", "", ""];
+  return [4, false, "",];
 };
 
 router.get('/', (req,res) => {
 
   const{fen,move} = req.query
-  const [result,valid,f1,f2,f3] = validate(fen,move)
+  const [result,valid,finalFEN] = validate(fen,move)
   res.json({
     "result" : result,
     "valid" : valid,
-    "f1" : f1,
-    "f2" : f2,
-    "f3" : f3
+    "fen" : finalFEN,
+    
   });
 });
 
