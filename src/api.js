@@ -17,11 +17,11 @@ formatFen = (fen) => {
 const validate = (prevFEN,move) => {
   let chess = new Chess(prevFEN);
   if (chess.move(move)) {
-    const [f1,f2,f3] = formatFen(chess.fen()); 
     if (chess.game_over()) {
-      if (chess.in_checkmate()) return [1, true, f1, f2, f3 ];
-      return [2, true, f1, f2, f3];
+      if (chess.in_checkmate()) return [1, true, "", "", "" ];
+      return [2, true, "", "", ""];
     }
+    const [f1,f2,f3] = formatFen(chess.fen());
     return [0, true, f1, f2, f3];
   }
   return [0, false, "", "", ""];
@@ -30,8 +30,13 @@ const validate = (prevFEN,move) => {
 router.get('/', (req,res) => {
 
   const{fen,move} = req.query
+  const [result,valid,f1,f2,f3] = validate(fen,move)
   res.json({
-    "result": validate(fen,move)
+    "result" : result,
+    "valid" : valid,
+    "f1" : f1,
+    "f2" : f2,
+    "f3" : f3
   });
 });
 
